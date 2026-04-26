@@ -1,0 +1,24 @@
+name: SQL Automation Pipeline
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'sql/**' ]
+
+jobs:
+  database-update:
+    runs-on: self-hosted  # Use the runner on your EC2
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Execute Flyway Migration
+        run: |
+          docker run --rm \
+            --network="host" \
+            -v $(pwd)/sql:/flyway/sql \
+            flyway/flyway:latest \
+            -url=jdbc:mysql://localhost:3306/my_lab_db \
+            -user=root \
+            -password=${{ secrets.DB_PASSWORD }} \
+            migrate
