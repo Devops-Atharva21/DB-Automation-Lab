@@ -19,6 +19,6 @@ jobs:
             -v "${{ github.workspace }}/sql":/flyway/sql \
             flyway/flyway:latest \
             -url=jdbc:mysql://localhost:3306/my_lab_db \
-            -user=root \
+            -user=mysql \
             -password="Connect@123" \
             migrate
