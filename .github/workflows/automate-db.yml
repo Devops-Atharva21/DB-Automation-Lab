@@ -20,5 +20,5 @@ jobs:
             flyway/flyway:latest \
             -url=jdbc:mysql://localhost:3306/my_lab_db \
             -user=root \
-            -password=${{ secrets.DB_PASSWORD }} \
+            -password="${{ secrets.DB_PASS }}" \
             migrate
