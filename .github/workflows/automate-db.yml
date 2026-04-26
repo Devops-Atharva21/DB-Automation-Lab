@@ -13,14 +13,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Execute Flyway Migration
-        env:
-          MY_DB_PASSWORD: ${{ secrets.DB_PASS }}
         run: |
           docker run --rm \
             --network="host" \
-            -v $(pwd)/sql:/flyway/sql \
+            -v ${{ github.workspace }}/sql:/flyway/sql \
             flyway/flyway:latest \
             -url=jdbc:mysql://localhost:3306/my_lab_db \
             -user=root \
-            -password="$MY_DB_PASSWORD" \
+            -password="Connect@123" \
             migrate
