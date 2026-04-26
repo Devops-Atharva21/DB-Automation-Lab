@@ -16,7 +16,7 @@ jobs:
         run: |
           docker run --rm \
             --network="host" \
-            -v ${{ github.workspace }}/sql:/flyway/sql \
+            -v "${{ github.workspace }}/sql":/flyway/sql \
             flyway/flyway:latest \
             -url=jdbc:mysql://localhost:3306/my_lab_db \
             -user=root \
