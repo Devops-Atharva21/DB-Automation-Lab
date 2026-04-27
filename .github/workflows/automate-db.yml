@@ -21,4 +21,4 @@ jobs:
             -url=jdbc:mysql://localhost:3306/my_lab_db \
             -user=mysql \
             -password="Connect@123" \
-            migrate
+            migrates
