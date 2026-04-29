@@ -1,24 +1,44 @@
-name: SQL Automation Pipeline
+name: DB Deployment (Secure)
 
 on:
   push:
     branches: [ main ]
-    paths: [ 'sql/**' ]
 
 jobs:
-  database-update:
-    runs-on: self-hosted  # Use the runner on your EC2
+  deploy:
+    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Execute Flyway Migration
+      - name: Setup SSH Key
         run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > key.pem
+          chmod 400 key.pem
+
+      - name: Copy SQL and Flyway config to EC2
+        run: |
+          scp -i key.pem -o StrictHostKeyChecking=no -r sql flyway \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USER }}/
+
+      - name: Run Flyway on EC2
+        run: |
+          ssh -i key.pem -o StrictHostKeyChecking=no \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+
+          echo "Checking files..."
+          ls -R
+
+          echo "Waiting for MySQL..."
+          sleep 20
+
+          echo "Running Flyway Migration..."
+
           docker run --rm \
-            --network="host" \
-            -v "${{ github.workspace }}/sql":/flyway/sql \
-            flyway/flyway:latest \
-            -url=jdbc:mysql://localhost:3306/my_lab_db \
-            -user=mysql \
-            -password="Connect@123" \
-            migrates
+            -v ~/sql:/flyway/sql \
+            -v ~/flyway/conf:/flyway/conf \
+            flyway/flyway \
+            migrate
+
+          EOF
